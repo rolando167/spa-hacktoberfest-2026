@@ -1,0 +1,33 @@
+/* Tokens del diseño (lienzo «Rutas por voz»). */
+:root {
+  --ground: #eef1ef;
+  --surface: #ffffff;
+  --ink: #12201c;
+  --ink-2: #2e3b37;
+  --muted: #4a5853;
+  --line: #d3dad6;
+  --line-strong: #c9d1cd;
+
+  --accent: #0b5d45; /* acciones principales */
+  --accent-hover: #08402f;
+  --accent-soft: #e3eeea;
+  --accent-ink: #0b3d2e;
+
+  --route: #c2410c; /* trazado y paradas */
+  --rec: #f97316; /* grabación */
+  --user: #2563eb; /* ubicación */
+  --done: #8a9893;
+  --wave: #6fcfae;
+  --error: #b42318;
+
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Figtree', system-ui, sans-serif;
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-xl: 28px;
+
+  --pad: 20px;
+  --tap: 44px;
+}
