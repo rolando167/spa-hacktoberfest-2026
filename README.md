@@ -27,7 +27,7 @@ npm run dev:netlify   # http://localhost:8888
 
 ## Stack
 
-React 18 · Vite 5 · TypeScript · react-leaflet · Netlify Functions · ElevenLabs (STT y TTS) · Anthropic (LLM) · OpenStreetMap/Overpass · OpenRouteService · Open-Meteo · Wikidata · Supabase Auth
+React 18 · Vite 5 · TypeScript · react-leaflet · Netlify Functions · ElevenLabs (STT y TTS) · Anthropic (LLM) · OpenStreetMap/Overpass · OpenRouteService · Open-Meteo · Wikidata
 
 - Contexto y tareas pendientes: [`CLAUDE.md`](CLAUDE.md).
 - Diseño de referencia: [`design/`](design/README.md).

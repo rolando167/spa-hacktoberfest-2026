@@ -15,7 +15,7 @@ Ejemplo: «Está lloviendo, quiero algo bajo techo y que no sea más de quince m
   1. Intención: transcripción → JSON (`Intent`).
   2. Ruta: elige y ordena paradas **entre candidatos reales** y escribe los textos.
 - **Regla de oro:** el LLM **nunca** inventa lugares ni coordenadas. Los sitios vienen de OpenStreetMap (Overpass), el trazado de OpenRouteService y las fotos de Wikidata/Commons.
-- **Auth:** Supabase Auth (Google, Apple, Facebook, enlace mágico). Opcional: sin variables, se entra sin cuenta.
+- **Auth:** simulada para la demo. «Continuar con Google» entra con un usuario de prueba guardado en `localStorage` (`src/lib/auth.ts`). Sin Supabase ni OAuth real.
 - **Idioma de la UI:** español de España. Frases cortas, sin lenguaje de anuncio.
 
 ## Diseño
@@ -42,7 +42,7 @@ src/
   screens/        Login · Home (inicio + grabando + intención) · RouteScreen · NavigateScreen (en ruta + llegada)
   components/     MapView (Leaflet), Header, IntentChips, PoiCard, icons
   hooks/          useGeolocation (watchPosition), useRecorder (MediaRecorder + onda), useWakeLock
-  lib/            types.ts (contrato front↔back), api.ts, mocks.ts, geo.ts, supabase.ts
+  lib/            types.ts (contrato front↔back), api.ts, mocks.ts, geo.ts, auth.ts (login simulado)
   state/          AppState (intención y ruta, persistidas en sessionStorage)
   styles/         tokens.css, app.css
 netlify/
@@ -81,7 +81,7 @@ Las variables de entorno están en `.env.example`. Ninguna clave va en el front:
 3. Botón «Saltar parada» en el panel de llegada (está en el diseño y falta en el código).
 4. Indicaciones giro a giro en la tarjeta superior de `/navegar` (ORS devuelve `steps`). Ahora solo muestra la distancia a la parada.
 5. Arrastrar el mapa desactiva «Siguiéndote»; revisar también que el zoom con pellizco no lo desactive.
-6. Supabase: guardar rutas por usuario y añadir una pantalla de perfil (el avatar aún no hace nada).
+6. Pantalla de perfil (ahora el avatar muestra las iniciales del usuario de prueba y solo sirve para cerrar sesión).
 7. Logos oficiales en los botones de acceso (los huecos discontinuos de 24 px en `Login.tsx`) y nombre definitivo de la app.
 8. Deploy en Netlify: variables de entorno y dominio.
 

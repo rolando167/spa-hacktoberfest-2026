@@ -213,6 +213,20 @@ a:hover {
 .icon-btn {
   border: 1px solid var(--line);
 }
+.avatar {
+  overflow: hidden;
+}
+.avatar__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar__initials {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+}
 
 /* ---------- mapa ---------- */
 .map {
@@ -762,35 +776,6 @@ a:hover {
 .login__sheet .display {
   font-size: 30px;
   line-height: 1.08;
-}
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 4px 0;
-  font-size: 13px;
-  color: var(--muted);
-}
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--line-strong);
-}
-.email {
-  display: flex;
-  gap: 8px;
-}
-.email input {
-  flex-grow: 1;
-  min-width: 0;
-  height: 54px;
-  padding: 0 16px;
-  border-radius: var(--r-md);
-  border: 1px solid var(--line-strong);
-  background: var(--surface);
-  font: inherit;
 }
 .legal {
   margin: 0;
