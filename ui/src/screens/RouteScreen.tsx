@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
-import { IntentChips } from '../components/IntentChips';
-import { MapView } from '../components/MapView';
-import { PoiCard } from '../components/PoiCard';
-import { ArrowLeftIcon, NavIcon } from '../components/icons';
+import { ArrowLeftIcon, ArrowRightIcon } from '../components/icons';
 import { useGeolocation } from '../hooks/useGeolocation';
-import { suggestRoute } from '../lib/api';
+import { researchSelectedPlace, suggestRoute } from '../lib/api';
 import { FALLBACK_POSITION, formatDistance } from '../lib/geo';
+import type { SelectedPlaceResponse } from '../lib/types';
 import { useAppState } from '../state/AppState';
 
 export function RouteScreen() {
@@ -17,6 +15,10 @@ export function RouteScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<SelectedPlaceResponse | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
 
   // Pide la ruta cuando ya hay ubicación (o se ha descartado) y no hay ruta guardada
   const origin = geo.position ?? (geo.error ? FALLBACK_POSITION : null);
@@ -44,9 +46,23 @@ export function RouteScreen() {
     </button>
   );
 
+  async function selectPlace(candidateId: string) {
+    setSelectedId(candidateId);
+    setSelectedPlace(null);
+    setDetailError(null);
+    setDetailLoading(true);
+    try {
+      setSelectedPlace(await researchSelectedPlace(candidateId));
+    } catch (e) {
+      setDetailError(e instanceof Error ? e.message : 'No se pudo investigar este lugar.');
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
   return (
     <main className="screen screen--scroll">
-      <Header left={back} title={<span className="header__center">Ruta sugerida</span>} />
+      <Header left={back} title={<span className="header__center">Lugares cerca de ti</span>} />
 
       {loading || !route ? (
         <div className="loading">
@@ -60,49 +76,103 @@ export function RouteScreen() {
           ) : (
             <>
               <div className="spinner" aria-hidden="true" />
-              <p className="muted">Buscando sitios reales cerca y trazando la ruta…</p>
+              <p className="muted">Buscando rincones con historia cerca de ti…</p>
             </>
           )}
         </div>
       ) : (
         <>
-          <MapView className="map--tall" position={origin ?? FALLBACK_POSITION} route={route} fitRoute showControls />
-
           <section className="stack">
-            <h1 className="display">{route.title}</h1>
-            <div className="stats">
-              <div className="stat">
-                <strong>{route.durationMinutes} min</strong>
-                <span>a pie</span>
-              </div>
-              <div className="stat">
-                <strong>{formatDistance(route.distanceMeters)}</strong>
-                <span>distancia</span>
-              </div>
-              <div className="stat">
-                <strong>{route.stops.length}</strong>
-                <span>{route.stops.every((s) => s.indoor) ? 'paradas cubiertas' : 'paradas'}</span>
-              </div>
-            </div>
+            <h1 className="display">Descubrimientos cerca de ti</h1>
             <p className="body">{route.summary}</p>
-            <IntentChips tags={route.tags} small />
           </section>
 
-          <h2 className="eyebrow section-title">Puntos de interés</h2>
+          <h2 className="eyebrow section-title">Elige un lugar para descubrir su historia</h2>
           <div className="stack-sm">
-            {route.stops.map((s, i) => (
-              <PoiCard key={s.id} poi={s} index={i} />
+            {route.stops.map((place, i) => (
+              <button
+                key={place.id}
+                type="button"
+                className="suggestion"
+                aria-pressed={selectedId === place.id}
+                disabled={detailLoading}
+                onClick={() => selectPlace(place.id)}
+              >
+                <span className="suggestion__number">{String(i + 1).padStart(2, '0')}</span>
+                <span className="suggestion__content">
+                  <span className="suggestion__theme">{place.historicalTheme ?? 'Historia local'}</span>
+                  <strong className="suggestion__title">{place.name}</strong>
+                  <span className="suggestion__text">{place.short}</span>
+                  {place.distanceMeters !== undefined && (
+                    <span className="suggestion__distance">A {formatDistance(place.distanceMeters)}</span>
+                  )}
+                </span>
+                <ArrowRightIcon size={18} />
+              </button>
             ))}
           </div>
 
-          <div className="row actions">
-            <button type="button" className="btn btn--outline" onClick={() => setAttempt((a) => a + 1)}>
-              Otra ruta
-            </button>
-            <button type="button" className="btn btn--primary btn--wide" onClick={() => navigate('/navegar')}>
-              Empezar ruta <NavIcon size={18} />
-            </button>
-          </div>
+          {selectedId && (
+            <section className="place-detail" aria-live="polite">
+              {detailLoading ? (
+                <div className="row">
+                  <div className="spinner spinner--small" aria-hidden="true" />
+                  <p className="muted">Investigando el lugar y preparando la audioguía…</p>
+                </div>
+              ) : detailError ? (
+                <div className="stack-xs">
+                  <p className="error">{detailError}</p>
+                  <button type="button" className="btn btn--outline" onClick={() => selectPlace(selectedId)}>
+                    Reintentar
+                  </button>
+                </div>
+              ) : selectedPlace ? (
+                <div className="stack-sm">
+                  <div>
+                    <span className="eyebrow">Descubrimiento ampliado</span>
+                    <h2 className="display display--xs place-detail__title">{selectedPlace.guide.title}</h2>
+                  </div>
+                  <p className="body">{selectedPlace.guide.researchSummary}</p>
+                  {selectedPlace.audio && selectedPlace.audio.base64 ? (
+                    <audio
+                      className="place-detail__audio"
+                      controls
+                      preload="none"
+                      src={`data:${selectedPlace.audio.mimeType};base64,${selectedPlace.audio.base64}`}
+                    >
+                      Tu navegador no puede reproducir este audio.
+                    </audio>
+                  ) : (
+                    <details className="place-detail__script">
+                      <summary>
+                        {selectedPlace.audio ? 'Leer guion de la audioguía' : 'Audio no disponible; leer guion'}
+                      </summary>
+                      <p className="body">{selectedPlace.guide.audioScript}</p>
+                    </details>
+                  )}
+                  <div className="place-detail__sources">
+                    Fuente: {selectedPlace.place.sourceUrls.map((url, index) => (
+                      <a key={url} href={url} target="_blank" rel="noreferrer">
+                        {selectedPlace.place.source === 'wikipedia' ? 'Wikipedia' : 'OpenStreetMap'}{index + 1 < selectedPlace.place.sourceUrls.length ? ', ' : ''}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </section>
+          )}
+
+          <button
+            type="button"
+            className="btn btn--outline btn--wide actions"
+            onClick={() => {
+              setSelectedId(null);
+              setSelectedPlace(null);
+              setAttempt((a) => a + 1);
+            }}
+          >
+            Buscar otros lugares
+          </button>
         </>
       )}
     </main>

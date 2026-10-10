@@ -4,7 +4,13 @@ import { z } from "zod";
 
 import { describeMadrid } from "./services/describe-madrid.js";
 import { curateNearby } from "./services/curate-nearby.js";
+import { generateAudioGuide } from "./services/generate-audio-guide.js";
 import { AllSourcesUnavailableError, researchNearby } from "./services/research-nearby.js";
+import { researchSelectedPlace } from "./services/research-selected-place.js";
+import {
+  AudioGuideUnavailableError,
+  synthesizeAudioGuide,
+} from "./services/synthesize-audio-guide.js";
 import { transcribeAudio, VoiceInputUnavailableError } from "./services/transcribe-audio.js";
 
 export const app = new Hono();
@@ -23,17 +29,6 @@ const maxAudioBytes = 25 * 1_024 * 1_024;
 const selectedPlaceRequest = z.object({
   candidateId: z.string().trim().min(1).max(200),
 });
-
-const hardcodedPlaceGuide = {
-  title: "The hidden layers of La Latina",
-  summary:
-    "This prototype guide follows traces of medieval Madrid that still surface in the streets around La Latina.",
-  audioGuide: {
-    language: "en",
-    script:
-      "Look closely at the buildings around you. Beneath the lively streets of La Latina are layers of medieval Madrid: walls, gates, hospitals, and the daily routes of people who lived here centuries ago.",
-  },
-};
 
 type NearbyResearchInput = z.infer<typeof nearbyResearchRequest> & {
   audio?: File;
@@ -106,10 +101,26 @@ app.post("/api/describe-madrid", async (context) => {
 
 app.post("/api/selected-place", async (context) => {
   const { candidateId } = parseSelectedPlaceRequest(await context.req.json());
+  const research = await researchSelectedPlace(candidateId);
+  const guide = await generateAudioGuide(research);
+  let audio = null;
+  try {
+    audio = await synthesizeAudioGuide(guide.audioScript);
+  } catch (error) {
+    if (!(error instanceof AudioGuideUnavailableError)) {
+      throw error;
+    }
+  }
 
   return context.json({
     candidateId,
-    guide: hardcodedPlaceGuide,
+    place: {
+      name: research.name,
+      source: research.source,
+      sourceUrls: research.sourceUrls,
+    },
+    guide,
+    audio,
   });
 });
 
@@ -139,6 +150,9 @@ app.post("/api/research-nearby", async (context) => {
       return context.json({ error: error.message }, 503);
     }
     if (error instanceof VoiceInputUnavailableError) {
+      return context.json({ error: error.message }, 503);
+    }
+    if (error instanceof AudioGuideUnavailableError) {
       return context.json({ error: error.message }, 503);
     }
 

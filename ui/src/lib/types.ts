@@ -33,6 +33,8 @@ export type Poi = {
   /** Minutos andando desde el punto anterior. */
   walkMinutesFromPrev: number;
   indoor: boolean;
+  historicalTheme?: string;
+  distanceMeters?: number;
 };
 
 export type RouteSuggestion = {
@@ -74,4 +76,22 @@ export type NearbyResearchResponse = {
   location: { lat: number; lon: number; radiusM: number };
   rawCandidates: PointOfInterestCandidate[];
   suggestions: NearbySuggestion[];
+};
+
+export type SelectedPlaceResponse = {
+  candidateId: string;
+  place: {
+    name: string;
+    source: 'wikipedia' | 'osm';
+    sourceUrls: string[];
+  };
+  guide: {
+    title: string;
+    researchSummary: string;
+    audioScript: string;
+  };
+  audio: {
+    mimeType: string;
+    base64: string;
+  } | null;
 };

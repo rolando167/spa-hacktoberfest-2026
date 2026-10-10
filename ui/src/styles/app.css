@@ -677,6 +677,94 @@ a:hover {
   line-height: 1.4;
   color: var(--ink-2);
 }
+.suggestion {
+  width: 100%;
+  min-height: 112px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  text-align: left;
+}
+.suggestion:hover,
+.suggestion[aria-pressed='true'] {
+  border-color: var(--accent);
+}
+.suggestion:focus-visible {
+  outline: 3px solid var(--accent-soft);
+  outline-offset: 2px;
+}
+.suggestion:disabled {
+  opacity: 0.7;
+}
+.suggestion__number {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.suggestion__content {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.suggestion__theme,
+.suggestion__distance {
+  color: var(--muted);
+  font-size: 12px;
+}
+.suggestion__theme {
+  text-transform: uppercase;
+}
+.suggestion__title {
+  font-size: 16px;
+  line-height: 1.25;
+}
+.suggestion__text {
+  color: var(--ink-2);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.suggestion > svg {
+  flex: 0 0 auto;
+  margin-top: 8px;
+  color: var(--accent);
+}
+.place-detail {
+  margin-top: 24px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line-strong);
+}
+.place-detail__title {
+  margin-top: 8px;
+}
+.place-detail__audio {
+  width: 100%;
+  min-height: 44px;
+}
+.place-detail__script {
+  color: var(--accent);
+  font-size: 14px;
+}
+.place-detail__script p {
+  margin-top: 12px;
+}
+.place-detail__sources {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
 .photo {
   border-radius: 14px;
   object-fit: cover;
@@ -727,6 +815,12 @@ a:hover {
   border: 4px solid var(--accent-soft);
   border-top-color: var(--accent);
   animation: spin 0.9s linear infinite;
+}
+.spinner--small {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border-width: 2px;
 }
 @keyframes spin {
   to {

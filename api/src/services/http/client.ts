@@ -1,5 +1,5 @@
 const userAgent = "MadridHiddenPlacesHackathon/0.1";
-const requestTimeoutMs = 8_000;
+const requestTimeoutMs = 20_000;
 
 export async function fetchJson<T>(url: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(url, {

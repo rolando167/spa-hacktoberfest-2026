@@ -1,4 +1,4 @@
-import { mockIntent, mockRoute } from './mocks';
+import { mockIntent, mockRoute, mockSelectedPlace } from './mocks';
 import { distanceMeters, walkMinutes } from './geo';
 import type {
   IntentResponse,
@@ -6,6 +6,7 @@ import type {
   NearbyResearchResponse,
   RouteRequest,
   RouteSuggestion,
+  SelectedPlaceResponse,
 } from './types';
 
 export const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === 'true';
@@ -61,6 +62,8 @@ function nearbyToRoute(origin: LatLng, nearby: NearbyResearchResponse): RouteSug
       photoUrl: null,
       walkMinutesFromPrev: 0,
       indoor: false,
+      historicalTheme: suggestion.historicalTheme,
+      distanceMeters: candidate.distanceM,
     }];
   });
 
@@ -92,4 +95,13 @@ function nearbyToRoute(origin: LatLng, nearby: NearbyResearchResponse): RouteSug
     stops,
     tags: [...new Set(nearby.suggestions.map((suggestion) => suggestion.historicalTheme))],
   };
+}
+
+export async function researchSelectedPlace(candidateId: string): Promise<SelectedPlaceResponse> {
+  if (USE_MOCKS) return mockSelectedPlace(candidateId);
+  return asJson(await fetch(`${BASE}/api/selected-place`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ candidateId }),
+  }));
 }
