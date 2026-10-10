@@ -1,47 +1,14 @@
-import type { Provider } from '@supabase/supabase-js';
-import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowRightIcon, MicIcon } from '../components/icons';
-import { signInWith, signInWithEmail, supabase } from '../lib/supabase';
-
-const PROVIDERS: { id: Provider; label: string }[] = [
-  { id: 'google', label: 'Continuar con Google' },
-  { id: 'apple', label: 'Continuar con Apple' },
-  { id: 'facebook', label: 'Continuar con Facebook' },
-];
+import { Navigate, useNavigate } from 'react-router-dom';
+import { MicIcon } from '../components/icons';
+import { useUser } from '../hooks/useUser';
+import { signInWithGoogle } from '../lib/auth';
 
 export function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const user = useUser();
 
-  async function social(p: Provider) {
-    setBusy(true);
-    try {
-      const r = await signInWith(p);
-      if (r.skipped) navigate('/inicio'); // sin Supabase configurado, entramos directamente
-    } catch (e) {
-      setMessage((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function byEmail(e: FormEvent) {
-    e.preventDefault();
-    if (!email) return;
-    setBusy(true);
-    try {
-      const r = await signInWithEmail(email);
-      if (r.skipped) navigate('/inicio');
-      else setMessage('Te hemos enviado un enlace. Ábrelo desde este móvil.');
-    } catch (err) {
-      setMessage((err as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  }
+  // Con sesión ya iniciada no tiene sentido volver a pedirla
+  if (user) return <Navigate to="/inicio" replace />;
 
   return (
     <main className="login">
@@ -80,37 +47,13 @@ export function Login() {
         </h1>
         <p className="muted">Entra para guardar tus rutas y retomar las que dejaste a medias.</p>
 
-        {PROVIDERS.map((p) => (
-          <button key={p.id} type="button" className="btn btn--social" disabled={busy} onClick={() => social(p.id)}>
-            {/* TODO: logo oficial del proveedor (24×24) desde su guía de marca */}
-            <span className="btn__logo" aria-hidden="true" />
-            <span className="btn__label">{p.label}</span>
-          </button>
-        ))}
+        {/* Login simulado: entra con un usuario de prueba (ver lib/auth.ts) */}
+        <button type="button" className="btn btn--social" onClick={signInWithGoogle}>
+          {/* TODO: logo oficial de Google (24×24) desde su guía de marca */}
+          <span className="btn__logo" aria-hidden="true" />
+          <span className="btn__label">Continuar con Google</span>
+        </button>
 
-        <div className="divider">
-          <span>o con tu correo</span>
-        </div>
-
-        <form className="email" onSubmit={byEmail}>
-          <label className="sr-only" htmlFor="email">
-            Correo electrónico
-          </label>
-          <input
-            id="email"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            placeholder="tucorreo@ejemplo.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <button type="submit" className="btn btn--icon btn--primary" aria-label="Enviar enlace de acceso" disabled={busy}>
-            <ArrowRightIcon />
-          </button>
-        </form>
-        <span className="muted small">{message ?? 'Te enviamos un enlace. Sin contraseñas.'}</span>
-        {!supabase && <span className="muted small">Modo desarrollo: Supabase sin configurar, entras sin cuenta.</span>}
 
         <div className="grow" />
         <button type="button" className="link" onClick={() => navigate('/inicio')}>

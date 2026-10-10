@@ -6,7 +6,7 @@ Lienzo original (privado): https://claude.ai/code/artifact/616f792b-523e-49a9-b1
 
 | # | Pantalla | Archivo | Ruta en la app |
 |---|---|---|---|
-| 0 | Acceso (Google, Apple, Facebook, enlace por correo, probar sin cuenta) | `screens/00-acceso.*` | `/` |
+| 0 | Acceso (Google simulado, probar sin cuenta; la maqueta aún muestra Apple, Facebook y el correo, ya descartados) | `screens/00-acceso.*` | `/` |
 | 1 | Inicio: mapa con ubicación, «Sugerir ruta» desactivado, barra para hablar | `screens/01-inicio.*` | `/inicio` |
 | 2 | Grabando: temporizador, onda, transcripción, parar | `screens/02-grabando.*` | `/inicio` (estado) |
 | 3 | Intención detectada: chips, radio a pie, «Sugerir ruta» activo | `screens/03-intencion.*` | `/inicio` (estado) |
