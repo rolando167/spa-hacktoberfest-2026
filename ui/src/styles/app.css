@@ -162,8 +162,16 @@ a:hover {
   flex-direction: column;
   padding: 24px var(--pad) calc(28px + env(safe-area-inset-bottom));
 }
+/* #root no hace scroll (overflow: hidden), así que la pantalla es su propio contenedor de scroll */
 .screen--scroll {
-  min-height: 100dvh;
+  height: 100dvh;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* Con altura fija, flex encogería el mapa y las tarjetas en vez de desbordar */
+.screen--scroll > * {
+  flex-shrink: 0;
 }
 
 .header {
