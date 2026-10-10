@@ -51,3 +51,27 @@ export type RouteRequest = {
   origin: LatLng;
   intent: Intent;
 };
+
+export type PointOfInterestCandidate = {
+  id: string;
+  source: 'wikipedia' | 'osm';
+  name: string;
+  coordinates: { lat: number; lon: number };
+  distanceM: number;
+  sourceUrl: string;
+  evidence: string;
+  tags: Record<string, string>;
+};
+
+export type NearbySuggestion = {
+  candidateId: string;
+  title: string;
+  whyInteresting: string;
+  historicalTheme: string;
+};
+
+export type NearbyResearchResponse = {
+  location: { lat: number; lon: number; radiusM: number };
+  rawCandidates: PointOfInterestCandidate[];
+  suggestions: NearbySuggestion[];
+};
